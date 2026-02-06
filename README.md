@@ -1,6 +1,11 @@
+--==================================================
+--  DOTTYMODS RAINBOW + INSTANT INTERACT
+--==================================================
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 
 local player = Players.LocalPlayer
 
@@ -30,8 +35,8 @@ local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
 ScreenGui.ResetOnSpawn = false
 
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 240, 0, 270)
-Frame.Position = UDim2.new(0.5, -120, 0.5, -135)
+Frame.Size = UDim2.new(0, 240, 0, 310) -- Aumentado un poco para el nuevo botón
+Frame.Position = UDim2.new(0.5, -120, 0.5, -155)
 Frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
 Frame.Active = true
 Frame.Draggable = true
@@ -71,11 +76,11 @@ Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0,6)
 
 local function createButton(text, yScale, parent)
 	local b = Instance.new("TextButton", parent)
-	b.Size = UDim2.new(0.85,0,0,35)
+	b.Size = UDim2.new(0.85,0,0,32)
 	b.Position = UDim2.new(0.075,0,yScale,0)
 	b.Text = text
 	b.Font = Enum.Font.GothamBold
-	b.TextSize = 14
+	b.TextSize = 13
 	b.TextColor3 = Color3.new(1,1,1)
 	b.BackgroundColor3 = Color3.fromRGB(30,30,30)
 	Instance.new("UICorner", b).CornerRadius = UDim.new(0,8)
@@ -88,13 +93,14 @@ local function createButton(text, yScale, parent)
 	return b
 end
 
-local TpButton    = createButton("TP", 0.18, Frame)
-local IrButton    = createButton("IR", 0.32, Frame)
-local VipButton   = createButton("Eliminar VIP", 0.46, Frame)
-local ParkButton  = createButton("Easy Parkour", 0.60, Frame)
-local MoneyButton = createButton("TP Money", 0.74, Frame)
+local TpButton      = createButton("TP", 0.15, Frame)
+local IrButton      = createButton("IR", 0.27, Frame)
+local VipButton     = createButton("Eliminar VIP", 0.39, Frame)
+local ParkButton    = createButton("Easy Parkour", 0.51, Frame)
+local MoneyButton   = createButton("TP Money", 0.63, Frame)
+local InteractBtn   = createButton("Instant Interact", 0.75, Frame)
 
-local buttons = {TpButton, IrButton, VipButton, ParkButton, MoneyButton}
+local buttons = {TpButton, IrButton, VipButton, ParkButton, MoneyButton, InteractBtn}
 
 local Credit = Instance.new("TextLabel", Frame)
 Credit.Size = UDim2.new(1,0,0,22)
@@ -102,8 +108,33 @@ Credit.Position = UDim2.new(0,0,1,-22)
 Credit.BackgroundTransparency = 1
 Credit.Text = "DOTTYMODS™"
 Credit.Font = Enum.Font.GothamBold
-Credit.TextSize = 13
+Credit.TextSize = 12
 Credit.TextColor3 = Color3.fromRGB(200,200,200)
+
+--==================================================
+-- FUNCIÓN INSTANT INTERACT (DIXON HUB)
+--==================================================
+
+local function Instantaneo(prompt)
+    prompt.HoldDuration = 0
+    prompt.ClickablePrompt = true
+end
+
+InteractBtn.MouseButton1Click:Connect(function()
+    print("DOTTYMODS: Modo Instant Interact Activado")
+    InteractBtn.Text = "Interact: ACTIVADO"
+    InteractBtn.TextColor3 = Color3.fromRGB(0, 255, 150)
+    
+    for _, prompt in pairs(game:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") then
+            Instantaneo(prompt)
+        end
+    end
+    
+    ProximityPromptService.PromptAdded:Connect(function(prompt)
+        Instantaneo(prompt)
+    end)
+end)
 
 --==================================================
 -- MENÚ TP MONEY (RAINBOW + MINIMIZABLE)
@@ -177,7 +208,7 @@ MoneyButton.MouseButton1Click:Connect(function()
 end)
 
 --==================================================
--- LÓGICA DE TELEPORTE / FUNCIONES
+-- LÓGICA DE TELEPORTE / FUNCIONES RESTANTES
 --==================================================
 
 local collisionActive = false
@@ -209,7 +240,6 @@ local function tweenTo(hrp, pos)
 	tw.Completed:Wait()
 end
 
--- CONEXIONES BOTONES PRINCIPALES
 TpButton.MouseButton1Click:Connect(function()
 	local hrp = player.Character.HumanoidRootPart
 	disableCollision(hrp)
@@ -241,5 +271,5 @@ MinBtn.MouseButton1Click:Connect(function()
 	for _, b in ipairs(buttons) do b.Visible = not minimized end
 	Credit.Visible = not minimized
 	MinBtn.Text = minimized and "+" or "—"
-	Frame.Size = minimized and UDim2.new(0,240,0,40) or UDim2.new(0,240,0,270)
+	Frame.Size = minimized and UDim2.new(0,240,0,40) or UDim2.new(0,240,0,310)
 end)
